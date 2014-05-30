@@ -1,0 +1,30 @@
+{
+  "manifest_version": 2,
+  "name": "findTab",
+  "description": "Quickly switch tabs by searching",
+  "version": "0.0.5",
+  "author" : "Erlend Oftedal",
+
+  "icons": { 
+    "128": "icon.png" 
+  },
+
+  "permissions": [
+  	"tabs",
+    "storage"
+  ],
+  "browser_action": {
+    "default_icon" : "icon.png",
+    "default_title": "findTab",
+    "default_popup": "popup.html"
+  },
+  "commands": {
+    "_execute_browser_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+M",
+        "windows": "Ctrl+Shift+M",
+        "mac": "Command+Shift+M"
+      }
+    }
+  }
+}

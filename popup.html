@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<style>
+	body { width: 400px; }
+	input { width: 99%; }
+	body, input {
+		font-family: arial, sans-serif; font-size: 13px;
+	}
+	#results { padding: 0; margin: 0; list-style: none}
+	#results li {
+		list-style: none;
+		margin: 0;
+		padding: 0.25em 0em 0.25em 1.5em;
+		background-repeat: no-repeat;
+		background-position: left 0.25em;
+		background-size: 1em 1em;
+		cursor: pointer;
+	}
+	#results li:hover, li.selected {
+		background-color: #eee;
+	}
+	</style>
+
+</head>
+<body>
+<input type="text" id="search" placeholder="Search" autofocus>
+
+<ul id="results">
+
+</ul>
+
+
+<script src="script.js"></script>
+</body>
+</html>
