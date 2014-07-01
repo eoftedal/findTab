@@ -43,9 +43,15 @@ function moveSelector(direction, lis) {
 }
 
 function openTab(li) {
-		chrome.tabs.update(li.tabId, {selected: true});
-		chrome.windows.update(li.windowId, {focused: true});
+	chrome.tabs.update(li.tabId, {selected: true});
+	chrome.windows.update(li.windowId, {focused: true});
 }
+function closeTab(li) {
+	chrome.tabs.remove(li.tabId);
+	li.parentNode.removeChild(li);
+	selectedIndex = -1;
+}
+
 
 function display(id, tabs, query) {
 	if (id != curSearch) return;
@@ -61,17 +67,33 @@ function display(id, tabs, query) {
 				li.className = "selected";
 				selectedIndex = 0;
 			}
-			li.innerText = tab.title;
+			var close = document.createElement("span");
+			close.className = "close";
+			close.innerHTML = "&#10006;";
+			close.addEventListener('click', function (evt) { closeTab(evt.target.parentNode); cancelBubble(evt); })
+			li.appendChild(close);
+
+			var title = document.createElement("div");
+			title.innerText = tab.title;
+			li.appendChild(title);
+
 			var favIconUrl = "";
 			if (tab.favIconUrl) {
-				favIconUrl = tab.favIconUrl.replace(/[^a-z.\/:]/g, function(c) { return "%" + c.charCodeAt(0).toString(16) });
+				favIconUrl = tab.favIconUrl.replace(/[^a-zA-Z0-9.\/:]/g, function(c) { return "%" + c.charCodeAt(0).toString(16) });
 			}
 			li.style.backgroundImage = "url(" + favIconUrl + ")";
 			results.appendChild(li);
 			li.tabId = tab.id;
 			li.windowId = tab.windowId;
-			li.addEventListener('click', function(evt) { openTab(evt.target) });
+			title.addEventListener('click', function(evt) { openTab(evt.target.parentNode) });
 		}
 	}
 	results.style.height = "auto";
 }
+
+function cancelBubble(e) {
+	var evt = e ? e:window.event;
+	if (evt.stopPropagation)    evt.stopPropagation();
+	if (evt.cancelBubble!=null) evt.cancelBubble = true;
+}
+
