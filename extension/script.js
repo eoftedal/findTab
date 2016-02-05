@@ -69,13 +69,14 @@ function display(id, tabs, query) {
 			}
 			var close = document.createElement("span");
 			close.className = "close";
-			close.innerHTML = "&#10006;";
+			close.innerHTML = (tab.audible ? "&#x1F50A;" : "") + "&#10006;";
 			close.addEventListener('click', function (evt) { closeTab(evt.target.parentNode); cancelBubble(evt); })
 			li.appendChild(close);
 
 			var title = document.createElement("div");
 			title.innerText = tab.title;
 			li.appendChild(title);
+			li.setAttribute("title", tab.url);
 
 			var favIconUrl = "";
 			if (tab.favIconUrl) {
