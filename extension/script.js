@@ -1,5 +1,8 @@
 var search = document.getElementById("search");
 var results = document.getElementById("results");
+var closeVisibleLink = document.getElementById("closeVisible");
+closeVisibleLink.style.display = "none";
+
 var curSearch = 0;
 var selectedIndex = -1;
 var storedQuery = chrome.storage.local.get('query', function(storedQuery) {
@@ -51,43 +54,68 @@ function closeTab(li) {
 	li.parentNode.removeChild(li);
 	selectedIndex = -1;
 }
-
+closeVisibleLink.addEventListener("click", () => {
+	[...results.childNodes].map(li => {
+		closeTab(li);
+	})
+});
 
 function display(id, tabs, query) {
 	if (id != curSearch) return;
 	results.innerHTML = "";
-	var first = true;
-	for (var t in tabs) {
-		var tab = tabs[t];
-		var re = new RegExp(".*" + query + ".*", "i");
-		if (re.test(tab.title) || re.test(tab.url)) {
-			var li = document.createElement("li");
-			if (first) {
-				first = false;
-				li.className = "selected";
-				selectedIndex = 0;
-			}
-			var close = document.createElement("span");
-			close.className = "close";
-			close.innerHTML = (tab.audible ? "&#x1F50A;" : "") + "&#10006;";
-			close.addEventListener('click', function (evt) { closeTab(evt.target.parentNode); cancelBubble(evt); })
-			li.appendChild(close);
-
-			var title = document.createElement("div");
-			title.innerText = tab.title;
-			li.appendChild(title);
-			li.setAttribute("title", tab.url);
-
-			var favIconUrl = "";
-			if (tab.favIconUrl) {
-				favIconUrl = tab.favIconUrl.replace(/[^a-zA-Z0-9.\/:]/g, function(c) { return "%" + c.charCodeAt(0).toString(16) });
-			}
-			li.style.backgroundImage = "url(" + favIconUrl + ")";
-			results.appendChild(li);
-			li.tabId = tab.id;
-			li.windowId = tab.windowId;
-			title.addEventListener('click', function(evt) { openTab(evt.target.parentNode) });
+	var re = new RegExp(".*" + query + ".*", "i");
+	tabs = tabs.filter(tab => {
+		return re.test(tab.title) || re.test(tab.url)
+	});
+	tabs.sort((a, b) => {
+		if (a.audible != b.audible) {
+			if (a.audible) return -1;
+			return 1;
 		}
+		if (a.title.toLowerCase() < b.title.toLowerCase()) {
+			return -1;
+		}
+		if (a.title.toLowerCase() > b.title.toLowerCase()) {
+			return 1;
+		}
+		if (a.url < b.url) return -1;
+		if (a.url > b.url) return 1;
+		return 0;
+	})
+	if (tabs.length > 0) {
+		closeVisibleLink.style.display = "block";
+	} else {
+		closeVisibleLink.style.display = "none";
+	}
+
+	var first = true;
+	for (let tab of tabs) {
+		var li = document.createElement("li");
+		if (first) {
+			first = false;
+			li.className = "selected";
+			selectedIndex = 0;
+		}
+		var close = document.createElement("span");
+		close.className = "close";
+		close.innerHTML = (tab.audible ? "&#x1F50A;" : "") + "&#10006;";
+		close.addEventListener('click', function (evt) { closeTab(evt.target.parentNode); cancelBubble(evt); })
+		li.appendChild(close);
+
+		var title = document.createElement("div");
+		title.innerText = tab.title;
+		li.appendChild(title);
+		li.setAttribute("title", tab.url);
+
+		var favIconUrl = "";
+		if (tab.favIconUrl) {
+			favIconUrl = tab.favIconUrl.replace(/[^a-zA-Z0-9.\/:]/g, function(c) { return "%" + c.charCodeAt(0).toString(16) });
+		}
+		li.style.backgroundImage = "url(" + favIconUrl + ")";
+		results.appendChild(li);
+		li.tabId = tab.id;
+		li.windowId = tab.windowId;
+		title.addEventListener('click', function(evt) { openTab(evt.target.parentNode) });
 	}
 	results.style.height = "auto";
 }
